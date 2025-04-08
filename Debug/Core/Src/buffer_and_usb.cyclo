@@ -1,0 +1,5 @@
+../Core/Src/buffer_and_usb.c:10:19:isBufferEmpty	1
+../Core/Src/buffer_and_usb.c:15:6:bufferWrite	2
+../Core/Src/buffer_and_usb.c:26:6:bufferRead	2
+../Core/Src/buffer_and_usb.c:36:10:availableBytes	2
+../Core/Src/buffer_and_usb.c:44:6:sendBuffer2usb	5
