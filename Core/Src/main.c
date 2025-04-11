@@ -1,12 +1,11 @@
 /* USER CODE BEGIN Header */
-/* USER CODE BEGIN Header */
 /**
   *********************************************************************************************************************************************************************************************************************************************************************
   * @file           : main.c
   * @brief          : DSP - FCEFYN
   *********************************************************************************************************************************************************************************************************************************************************************
   * @attention
-  * Trabajo práctico N° 1, 2 y 3 de Procesamiento Digital de Señales de la Facultad de Ciencias Exactas, Fìsicas y Naturales
+  * Trabajo práctico N° 1, 2, 3 y 4 de Procesamiento Digital de Señales de la Facultad de Ciencias Exactas, Fìsicas y Naturales
   *
   * Docentes:		Ing. Parlanti Gustavo
   * 		 		Dr. Molina German
@@ -303,6 +302,14 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+  * @brief  ADC Conversion Complete Callback
+  * @param  hadc Pointer to ADC handle
+  * @retval None
+  * @note   Se ejecuta cuando finaliza una conversión ADC. Lee el valor convertido,
+  *         escala a formato Q15, almacena en buffer y aplica filtrado FIR si está habilitado.
+  *         Gestiona el índice de muestras y reinicia el proceso cuando se llena el buffer.
+  */
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	uint16_t adcValue = HAL_ADC_GetValue(hadc);
@@ -338,6 +345,17 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
 }
 
+/**
+  * @brief  USB Command Processing Function
+  * @retval None
+  * @note   Verifica y procesa comandos recibidos por USB. Controla:
+  *         - Cambio de frecuencia de muestreo
+  *         - Tamaño de buffers
+  *         - Activación/desactivación de filtros FIR
+  *         - Modo ECG
+  *         - Envío de FFT y datos crudos
+  *         Actualiza parámetros del sistema y periféricos según comandos recibidos.
+  */
 void checkUSBRecive(void)
 {
     if (newCommandFlag)
@@ -441,6 +459,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
+/**
+  * @brief  FFT Computation Function
+  * @param  in Pointer to input circular buffer
+  * @param  out Pointer to output circular buffer
+  * @param  buffer_size Size of the buffer to process
+  * @retval None
+  * @note   Calcula la FFT de las muestras en el buffer de entrada:
+  *         1. Extrae muestras del buffer circular
+  *         2. Elimina componente DC
+  *         3. Calcula FFT usando ARM CMSIS
+  *         4. Calcula magnitud y normaliza
+  *         5. Envía resultado por USB con cabecera 0xFF
+  */
 void computeFFT(circularBuffer_t *in, circularBuffer_t *out, uint16_t buffer_size) {
     // Se definen arreglos locales para almacenar los datos intermedios
     q15_t fftInputAux[buffer_size];
@@ -488,6 +519,13 @@ void computeFFT(circularBuffer_t *in, circularBuffer_t *out, uint16_t buffer_siz
 
 }
 
+/**
+  * @brief  Timer Period Elapsed Callback
+  * @param  htim Pointer to TIM handle
+  * @retval None
+  * @note   Interrupción por timer para envío periódico de FFT
+  *         Activa flag de envío cuando se produce la interrupción del TIM5
+  */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM5)
