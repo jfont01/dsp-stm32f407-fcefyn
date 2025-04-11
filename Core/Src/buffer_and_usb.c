@@ -1,3 +1,21 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file    buffer_and_usb.c
+  * @brief   Funciones para manejar datos utilizando la estructura buffer circular
+  *y enviar los mismos por Virtual Com Port USB_OTG
+  *
+  ******************************************************************************
+  * @attention
+  *
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
+
+#define __author__ = "Font Julián"
+#define __version__ = "1.0.0"
+
 #include "buffer_and_usb.h"
 #include <string.h>
 #include "usbd_cdc_if.h"
