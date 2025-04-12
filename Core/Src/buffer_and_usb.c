@@ -1,21 +1,22 @@
 /* USER CODE BEGIN Header */
-/**
+/*
   ******************************************************************************
   * @file    buffer_and_usb.c
-  * @brief   Funciones para manejar datos utilizando la estructura buffer circular
-  *y enviar los mismos por Virtual Com Port USB_OTG
+  * @brief   Implementación de buffer circular y envío de datos por USB.
   *
+  * @author  Font Julián
+  * @version 1.0.1
   ******************************************************************************
-  * @attention
-  *
-  *
+  * @note    Funciones asociadas a la utilización de la estructura de datos buffer
+  * circular y la transmisión de datos por USB OTG casteados a Q15.
   ******************************************************************************
-  */
+  *	HISTORIAL DE CAMBIOS:
+  *	v1.0.0		Creación de la librería
+  *	v1.0.1		Comentarios de la librería en formato Doxygen
+  *******************************************************************************
+*/
+
 /* USER CODE END Header */
-
-#define __author__ = "Font Julián"
-#define __version__ = "1.0.0"
-
 #include "buffer_and_usb.h"
 #include <string.h>
 #include "usbd_cdc_if.h"
@@ -24,12 +25,25 @@
 
 
 extern uint8_t FFT_flag;
-/* Función auxiliar para determinar si el buffer está vacío */
+
+/*
+  * @brief  Verifica si el buffer circular está vacío
+  * @param  buf Puntero a la estructura del buffer circular
+  * @retval int Devuelve 1 si el buffer está vacío, 0 en caso contrario
+  * @note   Función helper estática inline
+  */
 static inline int isBufferEmpty(circularBuffer_t *buf) {
     return (buf->head == buf->tail);
 }
 
-/* Escribe un dato en el buffer circular */
+/*
+  * @brief  Escribe datos en el buffer circular
+  * @param  buf  Puntero a la estructura del buffer circular
+  * @param  data Puntero a los datos a escribir
+  * @retval None
+  * @note   Descarta silenciosamente los datos si el buffer está lleno (sin sobreescritura)
+  */
+
 void bufferWrite(circularBuffer_t *buf, q15_t *data) {
     uint16_t next = (buf->head + 1) % buf->effective_size;
     if (next == buf->tail) {
@@ -40,7 +54,13 @@ void bufferWrite(circularBuffer_t *buf, q15_t *data) {
     buf->head = next;
 }
 
-/* Lee un dato del buffer circular */
+/**
+  * @brief  Lee datos del buffer circular
+  * @param  buf  Puntero a la estructura del buffer circular
+  * @param  data Puntero donde almacenar el dato leído
+  * @retval None
+  * @note   No realiza acción si el buffer está vacío
+  */
 void bufferRead(circularBuffer_t *buf, q15_t *data) {
     if (isBufferEmpty(buf)) {
         // Buffer vacío: no hay nada que leer.
@@ -50,7 +70,11 @@ void bufferRead(circularBuffer_t *buf, q15_t *data) {
     buf->tail = (buf->tail + 1) % buf->effective_size;
 }
 
-/* Calcula el número de bytes disponibles en el buffer */
+/**
+  * @brief  Calcula los bytes disponibles en el buffer
+  * @param  buf Puntero a la estructura del buffer circular
+  * @retval uint16_t Número de bytes disponibles para lectura
+  */
 uint16_t availableBytes(circularBuffer_t *buf) {
     if (buf->head >= buf->tail)
         return buf->head - buf->tail;
@@ -58,7 +82,14 @@ uint16_t availableBytes(circularBuffer_t *buf) {
         return (buf->effective_size - buf->tail) + buf->head;
 }
 
-/* Envía datos leídos desde el buffer circular a través del USB */
+/**
+  * @brief  Transmite el contenido del buffer por interfaz USB CDC
+  * @param  buf Puntero a la estructura del buffer circular
+  * @retval None
+  * @note   Realiza conversión de formato q15_t a 8 bits sin signo
+  * @note   Evita enviar valores 0xFF (reemplazados por 0xFE) por posibles conflictos de protocolo
+  * @note   Usa transmisión USB no bloqueante con detección básica de errores
+  */
 void sendBuffer2usb(circularBuffer_t *buf)
 {
     q15_t tempBufferInput[USB_BUFFER_SIZE];
