@@ -47,7 +47,7 @@ static inline int isBufferEmpty(circularBuffer_t *buf) {
 void bufferWrite(circularBuffer_t *buf, q15_t *data) {
     uint16_t next = (buf->head + 1) % buf->effective_size;
     if (next == buf->tail) {
-        // Buffer lleno: aquí podrías decidir sobrescribir, bloquear o simplemente ignorar el dato.
+        // Buffer lleno. Por el momento se ignora el dato.
         return;
     }
     buf->buf[buf->head] = *data;
@@ -107,7 +107,7 @@ void sendBuffer2usb(circularBuffer_t *buf)
         }
         // Se transmiten los datos disponibles vía USB, aunque sean menos de USB_BUFFER_SIZE
         if (CDC_Transmit_FS(tempBufferOutput, count) != USBD_OK) {
-            // Manejo de error: aquí podrías reintentar la transmisión o registrar el error.
+            // Manejo de error. Por el momento se deja vacio
         }
     }
 }
