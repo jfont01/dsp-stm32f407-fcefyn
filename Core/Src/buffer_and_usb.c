@@ -5,14 +5,14 @@
   * @brief   Implementación de buffer circular y envío de datos por USB.
   *
   * @author  Font Julián
-  * @version 1.0.1
+  * @version 1.0.0
   ******************************************************************************
-  * @note    Funciones asociadas a la utilización de la estructura de datos buffer
+  * @attention
+  * Funciones asociadas a la utilización de la estructura de datos buffer
   * circular y la transmisión de datos por USB OTG casteados a Q15.
   ******************************************************************************
   *	HISTORIAL DE CAMBIOS:
   *	v1.0.0		Creación de la librería
-  *	v1.0.1		Comentarios de la librería en formato Doxygen
   *******************************************************************************
 */
 

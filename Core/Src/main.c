@@ -1,18 +1,38 @@
 /* USER CODE BEGIN Header */
 /**
   *********************************************************************************************************************************************************************************************************************************************************************
-  * @file           : main.c
-  * @brief          : DSP - FCEFYN
+ * @file main.c
+ * @brief DSP - FCEFYN
+  *
+  * @author  Font Julián
+  * @version 4.X.X
   *********************************************************************************************************************************************************************************************************************************************************************
   * @attention
-  * Trabajo práctico N° 1, 2, 3 y 4 de Procesamiento Digital de Señales de la Facultad de Ciencias Exactas, Fìsicas y Naturales
+  * Trabajos Prácticos de Procesamiento Digital de Señales - Facultad de Ciencias Exactas, Físicas y Naturales - Universidad Nacional de Córdoba
   *
-  * Docentes:		Ing. Parlanti Gustavo
-  * 		 		Dr. Molina German
-  * 		 		Ing. Mgter. Rossi Roberto
+  * Docentes:
+  *  			Ing. Parlanti Gustavo
+  * 			Dr. Molina German
+  *  			Ing. Mgter. Rossi Roberto
   *
+  * Estructura del proyecto:
+  * 			TP1 (v1.x.x): Muestreo y transmisión USB
+  * 			TP2 (v2.x.x): Implementación de filtros FIR
+  * 			TP3 (v3.x.x): Cálculo de FFT
+  * 			TP4 (v4.x.x): Filtro adaptativo para cancelación de ruido
   *
-  *	Este proyecto fue creado para completar los 4 trabajos prácticos de la materia. Se utiliza la placa STM32F407-DISCOVERY, a la frecuencia máxima de clock de 168MHz
+  * Plataforma: STM32F407-DISCOVERY @ 168MHz
+  *
+  * Interfaz: Osciloscopio Virtual en Python (Comunicación USB CDC)
+  *
+  * Funcionalidades clave:
+  * - Muestreo con frecuencias 8k-196k Hz (ADC + Timer 2)
+  * - Buffer circular eficiente para DSP (Q15)
+  * - Filtrado FIR/FFT en tiempo real
+  * - Control remoto via comandos USB
+  *
+  *	Este proyecto fue creado para completar los 4 trabajos prácticos de la materia. Se utiliza la placa STM32F407-DISCOVERY, cuyo microcontrolador es el
+  *	STM32F407VGT6. La frecuencia de clock utilizada es 168 MHz (máxima)
   *	El mismo fue creado a la par del proyecto "Osciloscopio Virtual", programado en Python, por lo que esta pensado para cumplir las consignas de diseño utilizando este
   *	osciloscopio virtual como principal herramienta de interacción y visualización de datos. Estos se envían mediante el periférico USB_OTG en modo Full Speed. Se configura
   *	el middleware como Virtual Com Port (Comunication Device Class). Para la lógica de envío, se llena un buffer con 64 muestras antes de ser enviadas. Esto para lograr
@@ -39,6 +59,13 @@
   *
   * Historial de cambios:
   * v1.0.0		Creción del proyecto
+  * v1.1.0		Se implementa el muestreo de datos mediante ADC1 por interrupción. Se configura el APB2 en 84 MHz y el prescaler del ADC en 4, resultando 21 MHz de clock para el ADC1. Con un a resolucion de 12 bits (15 ciclos de clock de ADC),
+  * 			logramos una maxima Fs teorica de Fs = ADCCLK/Ciclos = 21 MHz/15 = 1.4 MSPS.
+  * v1.2.0		Se cambia la implementación del ADC1 de interrupción a trigger del TIM2, con la frecuencia de trigger elegida. Fs = 84e6 / ((PSC + 1) * (ARR + 1)) para obtener un ARR = 1749 para Fs = 48 kHz
+  *
+  *
+  *
+  *
   * v1.1.0		Se implementa lectura de datos con usb otg. Se implementaron cambios en la funcion "CDC_Receive_FS()" de "usbd_cdc_if.c", en donde se guarda el dato recibido a "usbCmdBuffer" mediante
   * 			"memcpy()". Se definen las variables necesarias en "usbd_cdc_if.h". En "while(1)" del main, se implementa la lectura en polling del flag "newCommandFlag" y se decodifica el comando recibido. Se cambia la
   * 			frecuencia de sampling con la formula "ARR = (84000000 / newFS) - 1". El LED AZUL confirma que la placa recibó el comando. Frecuencias disponibles: 8k, 16k, 22k, 44k, 48k, 96k y 196k (tengo problemas para llegar a esa velocidad).
@@ -71,8 +98,6 @@
   *********************************************************************************************************************************************************************************************************************************************************************
   */
 
-#define __author__ = "Font Julián"
-#define __version__ = "5.x.x"
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"

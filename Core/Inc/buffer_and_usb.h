@@ -1,11 +1,12 @@
-/**
+/*******************************************************************************
  * @file buffer_and_usb.h
  * @brief Manejo de buffer circular y comunicación USB
  *
  * @author  Font Julián
  * @version 1.0.0
- *
- * @note	Este archivo define la estructura y funciones para un búfer circular utilizado
+ *******************************************************************************
+ * @attention
+ * Este archivo define la estructura y funciones para un búfer circular utilizado
  * en aplicaciones de DSP, junto con funciones para comunicación USB.
  *******************************************************************************
  *	HISTORIAL DE CAMBIOS:
