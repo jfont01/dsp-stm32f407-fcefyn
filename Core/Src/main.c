@@ -1,8 +1,8 @@
 /* USER CODE BEGIN Header */
 /**
   *********************************************************************************************************************************************************************************************************************************************************************
- * @file main.c
- * @brief DSP - FCEFYN
+  * @file main.c
+  * @brief DSP - FCEFYN
   *
   * @author  Font Julián
   * @version 4.X.X
@@ -15,7 +15,7 @@
   * 			Dr. Molina German
   *  			Ing. Mgter. Rossi Roberto
   *
-  * Estructura del proyecto:
+  * Estructura de las versiones del proyecto:
   * 			TP1 (v1.x.x): Muestreo y transmisión USB
   * 			TP2 (v2.x.x): Implementación de filtros FIR
   * 			TP3 (v3.x.x): Cálculo de FFT
@@ -23,12 +23,14 @@
   *
   * Plataforma: STM32F407-DISCOVERY @ 168MHz
   *
-  * Interfaz: Osciloscopio Virtual en Python (Comunicación USB CDC)
+  * Interfaz: Osciloscopio Virtual en Python (Comunicación USB CDC) (ver GitHub)
   *
   * Funcionalidades clave:
-  * - Muestreo con frecuencias 8k-196k Hz (ADC + Timer 2)
-  * - Buffer circular eficiente para DSP (Q15)
-  * - Filtrado FIR/FFT en tiempo real
+  * - Muestreo con frecuencias 8k-196k Hz (ADC1 + Trigger Timer 2)
+  * - FIFO Queue (Buffer circular) en q15_t
+  * - Filtrado FIR en tiempo real
+  * - Calculo y envio de FFT en tiempo real
+  * - Frecuencia de sampling, tamaño de ventana y tipo de filtro modificables en tiempo real
   * - Control remoto via comandos USB
   *
   *	Este proyecto fue creado para completar los 4 trabajos prácticos de la materia. Se utiliza la placa STM32F407-DISCOVERY, cuyo microcontrolador es el
@@ -62,13 +64,15 @@
   * v1.1.0		Se implementa el muestreo de datos mediante ADC1 por interrupción. Se configura el APB2 en 84 MHz y el prescaler del ADC en 4, resultando 21 MHz de clock para el ADC1. Con un a resolucion de 12 bits (15 ciclos de clock de ADC),
   * 			logramos una maxima Fs teorica de Fs = ADCCLK/Ciclos = 21 MHz/15 = 1.4 MSPS.
   * v1.2.0		Se cambia la implementación del ADC1 de interrupción a trigger del TIM2, con la frecuencia de trigger elegida. Fs = 84e6 / ((PSC + 1) * (ARR + 1)) para obtener un ARR = 1749 para Fs = 48 kHz
-  *
-  *
-  *
-  *
-  * v1.1.0		Se implementa lectura de datos con usb otg. Se implementaron cambios en la funcion "CDC_Receive_FS()" de "usbd_cdc_if.c", en donde se guarda el dato recibido a "usbCmdBuffer" mediante
+  * v1.3.0		Se implementa la estructura de datos "buffer circular" para tratamiento de los datos muestreados. Para esto se crea la libreria "buffer_and_usb.c y buffer_and_usb.h"
+  * v1.4.0		Se implementa el envio de datos mediante el middleware USB_DEVICE en configuracion Comunication Device Class (Virtual Com Port) USB_OTG Full Speed. Se define el USB_BUFFER_SIZE de 64 para lograr la mayor eficiencia.
+  * v1.5.0		Se implementa lectura de datos con usb otg. Se implementaron cambios en la funcion "CDC_Receive_FS()" de "usbd_cdc_if.c", en donde se guarda el dato recibido a "usbCmdBuffer" mediante
   * 			"memcpy()". Se definen las variables necesarias en "usbd_cdc_if.h". En "while(1)" del main, se implementa la lectura en polling del flag "newCommandFlag" y se decodifica el comando recibido. Se cambia la
   * 			frecuencia de sampling con la formula "ARR = (84000000 / newFS) - 1". El LED AZUL confirma que la placa recibó el comando. Frecuencias disponibles: 8k, 16k, 22k, 44k, 48k, 96k y 196k (tengo problemas para llegar a esa velocidad).
+  *
+  * v2.0.0		Se comienza a trabajar en la implementacion de los filtros FIR. Para esto se instala la libreria CMSIS-DSP en el proyecto. Se comienza diseñando los filtros en filterDesigner (MATLAB)
+  * v2.0.1		Se adjuntan los filtros diseñados en filterDesigner al proyecto (casteados a q15_t)
+  *
   * v1.2.0		Se comienza a implementar una diferenciación entre el envío de la señal muestreada y la fft de la misma. Para esto se utiliza la palabra reservada "0xFF", la cual indica que a partir del envio de la misma se
   * 			enviará la fft de effective_buffer_size/2 muestras (solo enviamos la magnitud).
   * v1.3.0		Se elimina el dc offset antes de calcular la fft. Esto se hace en "processFFT"
