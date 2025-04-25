@@ -1,3 +1,22 @@
+/* USER CODE BEGIN Header */
+/*
+  ******************************************************************************
+  * @file    filters.c
+  * @brief   Implementación de filtros FIR para diferentes frecuencias de muestreo y tipos de filtro.
+  *
+  * @author  Font Julián
+  * @version 1.0.0
+  ******************************************************************************
+  * @attention
+  * Coeficientes y funciones de inicialización para filtros FIR
+  * (pasa bajos, pasa altos, pasa banda y notch) diseñados para diferentes frecuencias de muestreo.
+  * Los filtros se inicializan usando funciones de la biblioteca ARM CMSIS-DSP.
+  ******************************************************************************
+  *	HISTORIAL DE CAMBIOS:
+  *	v1.0.0		Creación de la librería
+  *******************************************************************************
+*/
+
 #include "arm_math.h"
 #include "filters.h"
 
@@ -1604,15 +1623,25 @@ const q15_t notch_1k[notch_1k_orden] = {
         0,      0,      0,      0,      0,      0,      0, 0
 };
 
-
-
-void initFiltros(void)
-{
 //*************************************************************ECG***************************************************************************************************************************
 
 //todo
 
-//**********************************************************************************************************************************************************************************
+//*******************************************************************************************************************************************************************************************
+
+
+
+/**
+ * @brief Inicializa todos los filtros FIR con sus respectivos coeficientes y buffers de estado.
+ *
+ * Esta función configura las instancias de filtros FIR para todas las frecuencias de muestreo
+ * y tipos de filtro soportados. Cada filtro utiliza un buffer de estado estático para mantener
+ * los estados internos entre bloques de procesamiento.
+ *
+ * @note La inicialización del filtro ECG está marcada como "pendiente" y no está implementada.
+ */
+void initFiltros(void)
+{
 
 //*************************************************************LOWPASS***************************************************************************************************************************
 //inicializo lowpass_96k
