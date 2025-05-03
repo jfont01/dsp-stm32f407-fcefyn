@@ -33,8 +33,12 @@ Proyecto académico desarrollado para los Trabajos Prácticos de la materia Proc
   - USB OTG en modo Full Speed (CDC)
   - GPIO para LEDs de estado
 
-## Configuración Técnica
-```c
-#define RESET_SAMPLING_FREQUENCY 8000  // Frecuencia inicial en Hz
-#define USB_BUFFER_SIZE 64             // Tamaño de buffer USB
-#define MAX_CIRCULAR_BUFFER_SIZE 4096  // Tamaño máximo de buffer circular
+graph TD
+    A[Inicio] --> B[Configurar periféricos]
+    B --> C[Esperar comandos USB]
+    C --> D{Muestrear ADC}
+    D -->|Interrupción| E[Escribir en buffer]
+    E --> F[Procesar FIR]
+    F --> G[Calcular FFT]
+    G --> H[Enviar por USB]
+    H --> C
