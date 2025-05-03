@@ -1,0 +1,29 @@
+# STM32CubeIDE generated folders
+/.settings/
+/Debug/
+/Release/
+
+# STM32 project files
+*.launch
+*.bin
+*.elf
+*.hex
+*.map
+*.list
+*.o
+*.d
+
+# Build artifacts
+*.dep
+*.a
+*.su
+
+# IDE/OS files
+*.log
+*.swp
+.DS_Store
+Thumbs.db
+
+# Backup files
+*~
+*.bak
