@@ -1,5 +1,0 @@
-../Core/Src/buffer_and_usb.c:10:19:isBufferEmpty	16	static
-../Core/Src/buffer_and_usb.c:15:6:bufferWrite	24	static
-../Core/Src/buffer_and_usb.c:26:6:bufferRead	16	static
-../Core/Src/buffer_and_usb.c:36:10:availableBytes	16	static
-../Core/Src/buffer_and_usb.c:44:6:sendBuffer2usb	216	static
